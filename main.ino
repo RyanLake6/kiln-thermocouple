@@ -8,9 +8,9 @@ void setup() {
   WiFi.persistent(false);
 
   ConnectToWifi();
-
-  UploadTemp(1.0);
 }
 
 void loop() {
+  UploadTemp(float(millis()));
+  delay(5000);
 }

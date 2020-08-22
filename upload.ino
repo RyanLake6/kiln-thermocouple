@@ -12,6 +12,7 @@ WiFiClient client;
 
 // UploadTemp uploads the provided temp to our server
 int UploadTemp(float temp) {
+    Serial.println("Uploading Temp: "+String(temp));
     SendTCP(FormatToJson(temp));
 }
 
