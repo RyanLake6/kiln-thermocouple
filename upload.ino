@@ -3,11 +3,26 @@
 #include <WiFiClientSecure.h>
 #include <stdlib_noniso.h>
 
-const char* uploadServer    = "http://10.0.0.37:12345/test";
+const char* uploadServer    = "";
+const char* uploadTCPServer = "";
+const uint16_t uploadTCPPort = 5000;
+
+// Initialize the client library
+WiFiClient client;
 
 // UploadTemp uploads the provided temp to our server
 int UploadTemp(float temp) {
-    MakePost(FormatToJson(temp));
+    SendTCP(FormatToJson(temp));
+}
+
+// SendTCP Sends the data to the provided uploadTCPServer constant
+// See this documentation for more details
+// https://www.arduino.cc/en/Reference/WiFiClient
+int SendTCP(String data) {
+    client.connect(uploadTCPServer, uploadTCPPort);
+    client.write(data.c_str());
+    client.flush();
+    client.stop();
 }
 
 // MakePost makes a POST request to our server
