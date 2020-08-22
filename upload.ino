@@ -35,5 +35,5 @@ int MakePost(String data) {
 }
 
 String FormatToJson(float temp) {
-    return String(sprintf("{\"temp\":%f}", String(temp).c_str()));
+    return String("{\"temp\":"+String(temp)+"}");
 }
