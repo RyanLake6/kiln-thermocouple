@@ -8,11 +8,7 @@ void setup() {
   WiFi.persistent(false);
 
   ConnectToWifi();
-  //delay(3000);
-  //make_post("test");
 
-  // Enable the watchdog incase of failure
-  // ESP.wdtEnable(61000);
   UploadTemp(1.0);
 }
 

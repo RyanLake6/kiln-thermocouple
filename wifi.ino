@@ -24,15 +24,6 @@ int ConnectToWifi() {
         }
     }
 
-    /*
-    Serial.println("Connected lets see if we can post");
-    if (make_post("{}") != 0) {
-      Serial.println("We couldn't!!! That's a fail");
-      WiFi.disconnect();
-      return -1;
-    }
-    */
-
     Serial.println(WiFi.localIP());
 
     return 0;
