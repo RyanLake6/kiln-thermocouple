@@ -3,6 +3,8 @@
 #include <WiFiClientSecure.h>
 #include <stdlib_noniso.h>
 
+const char* uploadServer    = "http://10.0.0.37:12345/test";
+
 // UploadTemp uploads the provided temp to our server
 int UploadTemp(float temp) {
     MakePost(FormatToJson(temp));
@@ -16,7 +18,7 @@ int MakePost(String data) {
 
         //HTTP Method
         HTTPClient http;
-        http.begin("http://10.0.0.37:12345/test");
+        http.begin(uploadServer);
         http.addHeader("Content-Type", "application/json");
         int httpCode = http.POST(data);
         //String payload = http.getString();
