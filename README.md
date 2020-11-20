@@ -8,3 +8,15 @@ It performs the following functionality
   * Using a MAX31855 thermocouple amplifier (with thermocouple)
 * Kiln "finished" monitoring
   * Using a limit switch
+
+## Results
+
+TODO
+
+## Photos
+
+TODO
+
+## Schematic
+
+TODO
