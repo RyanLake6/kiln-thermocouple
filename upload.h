@@ -1,1 +1,0 @@
-int UploadTemp(float temp)

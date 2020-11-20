@@ -1,0 +1,3 @@
+
+void ConnectToWifi();
+void reconnect();

@@ -1,5 +1,6 @@
 #include <ESP8266WiFi.h>
 #include "wifi.h"
+#include "upload.h"
 
 void setup() {
   Serial.begin(9600);
@@ -11,6 +12,8 @@ void setup() {
 }
 
 void loop() {
+  reconnect();
+
   UploadTemp(float(millis()));
   delay(5000);
 }

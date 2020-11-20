@@ -1,11 +1,8 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
 #include <WiFiClientSecure.h>
-#include <stdlib_noniso.h>
 
-const char* uploadServer    = "";
-const char* uploadTCPServer = "";
-const uint16_t uploadTCPPort = 5000;
+#include "upload_creds.h"
 
 // Initialize the client library
 WiFiClient client;
@@ -13,17 +10,22 @@ WiFiClient client;
 // UploadTemp uploads the provided temp to our server
 int UploadTemp(float temp) {
     Serial.println("Uploading Temp: "+String(temp));
-    SendTCP(FormatToJson(temp));
+    // TODO:
+    // SendTCP(FormatToJson(temp));
+
+    return 0;
 }
 
-// SendTCP Sends the data to the provided uploadTCPServer constant
+// SendTCP Sends the data to the provided UPLOAD_TCP_SERVER constant
 // See this documentation for more details
 // https://www.arduino.cc/en/Reference/WiFiClient
 int SendTCP(String data) {
-    client.connect(uploadTCPServer, uploadTCPPort);
+    client.connect(UPLOAD_TCP_SERVER, UPLOAD_TCP_PORT);
     client.write(data.c_str());
     client.flush();
     client.stop();
+
+    return 0;
 }
 
 // MakePost makes a POST request to our server
@@ -34,7 +36,7 @@ int MakePost(String data) {
 
         //HTTP Method
         HTTPClient http;
-        http.begin(uploadServer);
+        http.begin(UPLOAD_SERVER);
         http.addHeader("Content-Type", "application/json");
         int httpCode = http.POST(data);
         //String payload = http.getString();
@@ -53,5 +55,5 @@ int MakePost(String data) {
 }
 
 String FormatToJson(float temp) {
-    return String("{\"temp\":"+String(temp)+"}");
+    return String("{\"hidden\":\"03d3d52b1bba3ba32ef881edd274205a0e679803\",\"name\":\"kilnmon\",\"temp\":"+String(temp)+"}");
 }
