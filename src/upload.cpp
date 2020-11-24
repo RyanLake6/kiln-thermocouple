@@ -7,26 +7,34 @@
 // Initialize the client library
 WiFiClient client;
 
-// UploadTemp uploads the provided temp to our server
-int UploadTemp(float temp) {
-    Serial.println("Uploading Temp: "+String(temp));
-    // TODO:
-    // SendTCP(FormatToJson(temp));
-
-    return 0;
+String FormatToJson(double temp) {
+    return String("{\"temp\":"+String(temp)+"}");
 }
+
 
 // SendTCP Sends the data to the provided UPLOAD_TCP_SERVER constant
 // See this documentation for more details
 // https://www.arduino.cc/en/Reference/WiFiClient
 int SendTCP(String data) {
     client.connect(UPLOAD_TCP_SERVER, UPLOAD_TCP_PORT);
+    client.write("POST /api/v1/");
+    client.write(ACCESS_TOKEN);
+    client.write("/telemetry\n\n  HTTP/1.1");
     client.write(data.c_str());
     client.flush();
     client.stop();
 
     return 0;
 }
+
+// UploadTemp uploads the provided temp to our server
+int UploadTemp(double temp) {
+    Serial.println("Uploading Temp: "+String(temp));
+    SendTCP(FormatToJson(temp));
+
+    return 0;
+}
+
 
 // MakePost makes a POST request to our server
 int MakePost(String data) {
@@ -52,8 +60,4 @@ int MakePost(String data) {
         return -1;
     }
     return 0;
-}
-
-String FormatToJson(float temp) {
-    return String("{\"hidden\":\"03d3d52b1bba3ba32ef881edd274205a0e679803\",\"name\":\"kilnmon\",\"temp\":"+String(temp)+"}");
 }

@@ -1,0 +1,2 @@
+void setupThermometer();
+double readF();

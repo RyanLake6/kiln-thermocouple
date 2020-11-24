@@ -1,1 +1,1 @@
-int UploadTemp(float temp);
+int UploadTemp(double temp);
