@@ -5,22 +5,34 @@
 #include "upload_creds.h"
 
 // Initialize the client library
-WiFiClient client;
+WiFiClientSecure client;
 
 String FormatToJson(double temp) {
     return String("{\"temp\":"+String(temp)+"}");
 }
 
-
 // SendTCP Sends the data to the provided UPLOAD_TCP_SERVER constant
 // See this documentation for more details
 // https://www.arduino.cc/en/Reference/WiFiClient
 int SendTCP(String data) {
-    client.connect(UPLOAD_TCP_SERVER, UPLOAD_TCP_PORT);
-    client.write("POST /api/v1/");
-    client.write(ACCESS_TOKEN);
-    client.write("/telemetry\n\n  HTTP/1.1");
-    client.write(data.c_str());
+    if (!client.connect(UPLOAD_TCP_SERVER, UPLOAD_TCP_PORT)) {
+        Serial.println("failed to connect");
+        return -1;
+    }
+    client.print("POST /api/v1/");
+    client.print(ACCESS_TOKEN);
+    client.println("/telemetry HTTP/1.1");
+    client.println("Connection: close");
+    client.println("User-Agent: kilnmon-device");
+    client.println("Content-Type: application/json");
+    client.print("Host: ");
+    client.println(UPLOAD_TCP_SERVER);
+    client.print("Content-Length: ");
+    client.print(data.length());
+    client.println();
+    client.println();
+    client.print(data.c_str());
+    client.println();
     client.flush();
     client.stop();
 

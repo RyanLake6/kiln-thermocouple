@@ -10,7 +10,6 @@
 // initialize the Thermocouple
 Adafruit_MAX31855 thermocouple(MAXCLK, MAXCS, MAXDO);
 
-
 void setupThermometer() {
   Serial.begin(9600);
     if (!thermocouple.begin()) {
