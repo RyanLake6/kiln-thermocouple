@@ -9,6 +9,10 @@ It performs the following functionality
 * Kiln "finished" monitoring
   * Using a limit switch
 
+## Dashboard for monitoring
+
+![dashboard](./docs/dashboard.png)
+
 ## Results
 
 TODO
