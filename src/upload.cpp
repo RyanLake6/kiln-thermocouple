@@ -11,27 +11,29 @@ String FormatToJson(double temp) {
     return String("{\"temp\":"+String(temp)+"}");
 }
 
-// SendTCP Sends the data to the provided UPLOAD_TCP_SERVER constant
-// See this documentation for more details
-// https://www.arduino.cc/en/Reference/WiFiClient
-int SendTCP(String data) {
+// Post makes a post request to the provided path with the provided body.
+// The path must have a prefexed "/" and is the path after the thingsboard ACCESS_TOKEN
+// ex: /telemetry
+// See: https://thingsboard.io/docs/reference/http-api/
+int Post(String path, String body) {
     if (!client.connect(UPLOAD_TCP_SERVER, UPLOAD_TCP_PORT)) {
         Serial.println("failed to connect");
         return -1;
     }
     client.print("POST /api/v1/");
     client.print(ACCESS_TOKEN);
-    client.println("/telemetry HTTP/1.1");
+    client.print(path);
+    client.println(" HTTP/1.1");
     client.println("Connection: close");
     client.println("User-Agent: kilnmon-device");
     client.println("Content-Type: application/json");
     client.print("Host: ");
     client.println(UPLOAD_TCP_SERVER);
     client.print("Content-Length: ");
-    client.print(data.length());
+    client.print(body.length());
     client.println();
     client.println();
-    client.print(data.c_str());
+    client.print(body.c_str());
     client.println();
     client.flush();
     client.stop();
@@ -39,37 +41,20 @@ int SendTCP(String data) {
     return 0;
 }
 
+// SendAttributes send the attributes to the server to update them
+int SendAttributes(String attributes) {
+    return Post("/attributes", attributes);
+}
+
+// SendTelemetry Sends telemetry data to the provided UPLOAD_TCP_SERVER constant
+// See this documentation for more details
+// https://www.arduino.cc/en/Reference/WiFiClient
+int SendTelemetry(String data) {
+    return Post("/telemetry", data);
+}
+
 // UploadTemp uploads the provided temp to our server
 int UploadTemp(double temp) {
     Serial.println("Uploading Temp: "+String(temp));
-    SendTCP(FormatToJson(temp));
-
-    return 0;
-}
-
-
-// MakePost makes a POST request to our server
-int MakePost(String data) {
-    //make sure we are connected via wifi
-    if (WiFi.status() == WL_CONNECTED) {
-        Serial.println("make_post");
-
-        //HTTP Method
-        HTTPClient http;
-        http.begin(UPLOAD_SERVER);
-        http.addHeader("Content-Type", "application/json");
-        int httpCode = http.POST(data);
-        //String payload = http.getString();
-        http.writeToStream(&Serial);
-        http.end();
-        if (httpCode < 0) {
-            Serial.print("Failed to post: ");
-            Serial.println(httpCode);
-            return -1;
-        }
-    } else {
-        Serial.println("Cannot POST, not connected to wifi");
-        return -1;
-    }
-    return 0;
+    return SendTelemetry(FormatToJson(temp));
 }
