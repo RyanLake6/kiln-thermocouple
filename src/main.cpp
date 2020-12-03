@@ -21,5 +21,7 @@ void setup() {
 void loop() {
   reconnect();
   UploadTemp(readF());
+
+  // TODO: Add code to check status of switch and run SendAttributes()
   delay(5000);
 }
