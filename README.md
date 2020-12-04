@@ -23,4 +23,4 @@ TODO
 
 ## Schematic
 
-TODO
+![schematic](./docs/schematic.svg)
