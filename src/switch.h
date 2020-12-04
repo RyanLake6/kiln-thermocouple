@@ -1,0 +1,2 @@
+void initSwitch();
+bool getSwitchStatus();
