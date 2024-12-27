@@ -22,11 +22,12 @@ void setup() {
 
 void loop() {
   reconnect();
-  UploadTemp(readF());
+  UploadTempToInfluxDb(readF());
+  // UploadTemp(readF());
 
-  char attributeUpdate[50];
-  sprintf(attributeUpdate, "{\"switch\":%s}", getSwitchStatus()?"true":"false"); // {"switch":false}
-  SendAttributes(attributeUpdate);
+  // char attributeUpdate[50];
+  // sprintf(attributeUpdate, "{\"switch\":%s}", getSwitchStatus()?"true":"false"); // {"switch":false}
+  // SendAttributes(attributeUpdate);
 
   delay(5000);
 }

@@ -41,6 +41,39 @@ int Post(String path, String body) {
     return 0;
 }
 
+int PostToR620(String path, String body) {
+    client.setTimeout(5000);
+    if (!client.connect(UPLOAD_R620_SERVER, UPLOAD_R620_PORT)) {
+        Serial.println(WiFi.localIP()); 
+        Serial.println(WiFi.status());
+        Serial.println(client.connect(UPLOAD_R620_SERVER, UPLOAD_R620_PORT));
+        Serial.println(UPLOAD_R620_PORT);
+        Serial.println(UPLOAD_R620_SERVER);
+        Serial.println("failed to connect");
+        return -1;
+    }
+    // /api/v2/write?org=myorg&bucket=proxmox_metrics
+    client.print("POST /api/v2/");
+    client.print(INFLUX_DB_API_TOKEN);
+    client.print(path);
+    client.println(" HTTP/1.1");
+    client.println("Connection: close");
+    client.println("User-Agent: kilnmon-device");
+    client.println("Content-Type: application/json");
+    client.print("Host: ");
+    client.println(UPLOAD_R620_SERVER);
+    client.print("Content-Length: ");
+    client.print(body.length());
+    client.println();
+    client.println();
+    client.print(body.c_str());
+    client.println();
+    client.flush();
+    client.stop();
+
+    return 0;
+}
+
 // SendAttributes send the attributes to the server to update them
 int SendAttributes(String attributes) {
     return Post("/attributes", attributes);
@@ -57,4 +90,15 @@ int SendTelemetry(String data) {
 int UploadTemp(double temp) {
     Serial.println("Uploading Temp: "+String(temp));
     return SendTelemetry(FormatToJson(temp));
+}
+
+// SendTelemetryR620 sends telemetry data to R620 hosting influxDB on a VM
+int SendTelemetryR620(String data) {
+    return PostToR620("/write", data);
+}
+
+// Upload temo to influx db
+int UploadTempToInfluxDb(double temp) {
+    Serial.println("Uploading Temp to server: "+String(temp));
+    return SendTelemetryR620(FormatToJson(temp));
 }
