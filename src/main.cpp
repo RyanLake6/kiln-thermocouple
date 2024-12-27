@@ -5,12 +5,12 @@
 #include "temp.h"
 #include "switch.h"
 
-extern WiFiClientSecure client;
+extern WiFiClient client;
 
 void setup() {
   Serial.begin(9600);
 
-  client.setInsecure();
+  // client.setInsecure();
 
   Serial.printf("Init\n");
   WiFi.persistent(false);
@@ -22,9 +22,11 @@ void setup() {
 
 void loop() {
   reconnect();
+  // Only uploading to influxdb now
   UploadTempToInfluxDb(readF());
-  // UploadTemp(readF());
 
+  // Setup to upload to thingsboard and use a switch
+  // UploadTemp(readF());
   // char attributeUpdate[50];
   // sprintf(attributeUpdate, "{\"switch\":%s}", getSwitchStatus()?"true":"false"); // {"switch":false}
   // SendAttributes(attributeUpdate);

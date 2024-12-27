@@ -5,10 +5,15 @@
 #include "upload_creds.h"
 
 // Initialize the client library
-WiFiClientSecure client;
+// must use the non-secure library for internal network http requests (not https)
+WiFiClient client;
 
 String FormatToJson(double temp) {
     return String("{\"temp\":"+String(temp)+"}");
+}
+
+String FormatToJsonInfluxDb(double temp) {
+    return String("thermocouple,host=esp8266 temp="+String(temp));
 }
 
 // Post makes a post request to the provided path with the provided body.
@@ -52,24 +57,50 @@ int PostToR620(String path, String body) {
         Serial.println("failed to connect");
         return -1;
     }
-    // /api/v2/write?org=myorg&bucket=proxmox_metrics
-    client.print("POST /api/v2/");
-    client.print(INFLUX_DB_API_TOKEN);
-    client.print(path);
-    client.println(" HTTP/1.1");
-    client.println("Connection: close");
-    client.println("User-Agent: kilnmon-device");
-    client.println("Content-Type: application/json");
-    client.print("Host: ");
-    client.println(UPLOAD_R620_SERVER);
-    client.print("Content-Length: ");
-    client.print(body.length());
-    client.println();
-    client.println();
-    client.print(body.c_str());
-    client.println();
-    client.flush();
-    client.stop();
+
+    String httpRequest = "POST " + path + " HTTP/1.1\r\n" +
+                         "Authorization: Token " + INFLUX_DB_API_TOKEN + "\r\n" +
+                         "Connection: close\r\n" +
+                         "User-Agent: kilnmon-device\r\n" +
+                         "Content-Type: application/json\r\n" +
+                         "Host: " + String(UPLOAD_R620_SERVER) + "\r\n" +
+                         "Content-Length: " + String(body.length()) + "\r\n\r\n" +
+                         body.c_str() + "\r\n";
+
+    Serial.println("HTTP Request:");
+    Serial.println(httpRequest);
+
+    // Send the request
+    client.print(httpRequest);
+
+    Serial.println("Waiting for server response...");
+    long startMillis = millis();
+    String response = "";
+
+    // Wait for up to 10 seconds
+    while (millis() - startMillis < 10000) {
+        if (client.available()) {
+            char c = client.read();
+            response += c;
+        }
+    }
+
+    // output debugging logs
+    if (response.length() > 0) {
+        int responseCode = 0;
+        int spaceIndex = response.indexOf(' ');
+        if (spaceIndex != -1) {
+            String code = response.substring(spaceIndex + 1, spaceIndex + 4);
+            responseCode = code.toInt();
+        }
+
+        Serial.print("Response code: ");
+        Serial.println(responseCode);
+        Serial.println("Response body: ");
+        Serial.println(response);
+    } else {
+        Serial.println("No response from server.");
+    }
 
     return 0;
 }
@@ -94,11 +125,11 @@ int UploadTemp(double temp) {
 
 // SendTelemetryR620 sends telemetry data to R620 hosting influxDB on a VM
 int SendTelemetryR620(String data) {
-    return PostToR620("/write", data);
+    return PostToR620("/api/v2/write?org=myorg&bucket=kiln-mon&precision=s", data);
 }
 
 // Upload temo to influx db
 int UploadTempToInfluxDb(double temp) {
     Serial.println("Uploading Temp to server: "+String(temp));
-    return SendTelemetryR620(FormatToJson(temp));
+    return SendTelemetryR620(FormatToJsonInfluxDb(temp));
 }
